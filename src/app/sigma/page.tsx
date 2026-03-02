@@ -1,6 +1,7 @@
 // src/app/sigma/page.tsx
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 type Lang = "FR" | "EN";
@@ -77,6 +78,22 @@ const copy = {
       },
     ],
     footer: "Sigma Cert Value • Proof Registry",
+    preview: {
+      title: "Aperçu vérification",
+      status: "Statut: VALIDE",
+      number: "Numéro",
+      standard: "Standard",
+      issued: "Émis le",
+      expires: "Expire le",
+      proof: "Preuve",
+      verifiable: "Vérifiable",
+      copyLink: "Copier le lien",
+      qr: "QR",
+      qrTitle: "Scan QR (exemple)",
+      qrHint: "Le dashboard génère un QR code qui redirige vers la page de preuve.",
+      open: "Ouvrir la preuve",
+      scan: "Scanner",
+    },
   },
   EN: {
     nav: { product: "Product", usecases: "Use cases", how: "How it works", faq: "FAQ" },
@@ -148,11 +165,58 @@ const copy = {
       },
     ],
     footer: "Sigma Cert Value • Proof Registry",
+    preview: {
+      title: "Verification preview",
+      status: "Status: VALID",
+      number: "Number",
+      standard: "Standard",
+      issued: "Issued",
+      expires: "Expires",
+      proof: "Proof",
+      verifiable: "Verifiable",
+      copyLink: "Copy link",
+      qr: "QR",
+      qrTitle: "Scan QR (example)",
+      qrHint: "The dashboard generates a QR code that redirects to the proof page.",
+      open: "Open proof",
+      scan: "Scan",
+    },
   },
 } as const;
 
 function classNames(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
+}
+
+function QrMock() {
+  return (
+    <div className="relative h-28 w-28 rounded-2xl border border-white/12 bg-white/5 p-3">
+      <div className="grid grid-cols-7 grid-rows-7 gap-[2px] h-full w-full">
+        {Array.from({ length: 49 }).map((_, i) => {
+          const on =
+            i % 7 === 0 ||
+            (i + 1) % 7 === 0 ||
+            i < 7 ||
+            i >= 42 ||
+            (i % 9 === 0) ||
+            (i % 5 === 0 && i % 2 === 0);
+          return (
+            <div
+              key={i}
+              className={classNames(
+                "rounded-[2px]",
+                on ? "bg-white/90" : "bg-white/10"
+              )}
+            />
+          );
+        })}
+      </div>
+
+      {/* "scanner frame" */}
+      <div className="pointer-events-none absolute inset-2 rounded-xl border border-emerald-300/30 shadow-[0_0_0_1px_rgba(16,185,129,0.08)]" />
+      <div className="pointer-events-none absolute left-3 right-3 top-1/2 h-px bg-emerald-300/35" />
+    </div>
+  );
 }
 
 export default function SigmaLanding() {
@@ -171,8 +235,15 @@ export default function SigmaLanding() {
       <header className="sticky top-0 z-20 backdrop-blur border-b border-white/10">
         <div className="mx-auto max-w-6xl px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center">
-              <span className="font-semibold">S</span>
+            <div className="h-10 w-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/logo-sigma.png"
+                alt="Sigma Cert Value"
+                width={160}
+                height={50}
+                className="h-[50px] w-[160px] object-contain"
+                priority
+              />
             </div>
             <div className="leading-tight">
               <div className="font-semibold">Sigma Cert Value</div>
@@ -266,51 +337,87 @@ export default function SigmaLanding() {
             </div>
           </div>
 
-          {/* Right hero card (Provenance-like “product UI preview”) */}
+          {/* Right hero card (Preview + QR UI) */}
           <div className="relative">
             <div className="rounded-3xl border border-white/15 bg-white/5 backdrop-blur p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold">{lang === "FR" ? "Aperçu vérification" : "Verification preview"}</div>
-                <div className="text-xs text-white/60">{lang === "FR" ? "Statut: VALIDE" : "Status: VALID"}</div>
+                <div className="text-sm font-semibold">{c.preview.title}</div>
+                <div className="text-xs text-white/60">{c.preview.status}</div>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-white/60 text-xs">{lang === "FR" ? "Numéro" : "Number"}</div>
+                  <div className="text-white/60 text-xs">{c.preview.number}</div>
                   <div className="mt-1 font-semibold">BN24343/23034</div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-white/60 text-xs">{lang === "FR" ? "Standard" : "Standard"}</div>
+                  <div className="text-white/60 text-xs">{c.preview.standard}</div>
                   <div className="mt-1 font-semibold">ISO 9001:2015</div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-white/60 text-xs">{lang === "FR" ? "Émis le" : "Issued"}</div>
+                  <div className="text-white/60 text-xs">{c.preview.issued}</div>
                   <div className="mt-1 font-semibold">09 Sep 2025</div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="text-white/60 text-xs">{lang === "FR" ? "Expire le" : "Expires"}</div>
+                  <div className="text-white/60 text-xs">{c.preview.expires}</div>
                   <div className="mt-1 font-semibold">08 Sep 2028</div>
                 </div>
               </div>
 
               <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-                <div className="text-white/60 text-xs">{lang === "FR" ? "Preuve" : "Proof"}</div>
+                <div className="text-white/60 text-xs">{c.preview.proof}</div>
                 <div className="mt-2 flex items-center justify-between gap-3">
                   <div className="text-xs text-white/70 truncate">
-                    SHA-256: <span className="text-white/90">0x8f…c2a9</span> • CID: <span className="text-white/90">bafy…</span>
+                    SHA-256: <span className="text-white/90">0x8f…c2a9</span> • CID:{" "}
+                    <span className="text-white/90">bafy…</span>
                   </div>
                   <span className="px-2 py-1 rounded-lg bg-emerald-500/15 border border-emerald-400/20 text-emerald-200 text-xs">
-                    {lang === "FR" ? "Vérifiable" : "Verifiable"}
+                    {c.preview.verifiable}
                   </span>
                 </div>
               </div>
 
+              {/* QR UI (no functionality) */}
+              <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold">{c.preview.qrTitle}</div>
+                    <div className="mt-1 text-xs text-white/65 leading-relaxed">
+                      {c.preview.qrHint}
+                    </div>
+                    <div className="mt-3 flex gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        className="px-3 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-white/90"
+                        aria-label="Open proof (mock)"
+                      >
+                        {c.preview.open}
+                      </button>
+                      <button
+                        type="button"
+                        className="px-3 py-2 rounded-xl border border-white/15 bg-white/5 text-white/80 font-semibold text-xs hover:bg-white/10"
+                        aria-label="Scan (mock)"
+                      >
+                        {c.preview.scan}
+                      </button>
+                    </div>
+                  </div>
+                  <QrMock />
+                </div>
+              </div>
+
               <div className="mt-4 flex gap-2">
-                <button className="flex-1 px-4 py-2 rounded-xl bg-white text-black font-semibold text-sm">
-                  {lang === "FR" ? "Copier le lien" : "Copy link"}
+                <button
+                  type="button"
+                  className="flex-1 px-4 py-2 rounded-xl bg-white text-black font-semibold text-sm"
+                >
+                  {c.preview.copyLink}
                 </button>
-                <button className="px-4 py-2 rounded-xl border border-white/15 bg-white/5 text-white/80 font-semibold text-sm">
-                  {lang === "FR" ? "QR" : "QR"}
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl border border-white/15 bg-white/5 text-white/80 font-semibold text-sm"
+                >
+                  {c.preview.qr}
                 </button>
               </div>
             </div>
@@ -321,7 +428,7 @@ export default function SigmaLanding() {
         </div>
       </section>
 
-      {/* Feature blocks (Provenance-like layout) */}
+      {/* Feature blocks */}
       <section id="product" className="mx-auto max-w-6xl px-5 py-10">
         <h2 className="text-2xl md:text-3xl font-semibold">{c.blocksTitle}</h2>
 
