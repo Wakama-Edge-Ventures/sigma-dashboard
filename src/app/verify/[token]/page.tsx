@@ -1,7 +1,7 @@
 // src/app/verify/[token]/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { sql } from "@/lib/sigmaDb";
+import { getSigmaSql } from "@/lib/sigmaDb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,7 +48,12 @@ export default async function VerifyPage({ params }: { params: { token: string }
   const token = (params.token || "").trim();
   if (!token || token.length < 16) notFound();
 
-  const rows = await sql<DocRow[]>`
+  const sql = getSigmaSql();
+if (!sql) {
+  // sécurité: ne rien exposer si config absente
+  notFound();
+}
+const rows = await sql<DocRow[]>`
     SELECT
       d.id,
       d.title,

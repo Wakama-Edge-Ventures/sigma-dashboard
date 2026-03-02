@@ -1,16 +1,25 @@
 // src/lib/sigmaDb.ts
 import postgres from "postgres";
 
-const SIGMA_DATABASE_URL = process.env.SIGMA_DATABASE_URL;
-
-if (!SIGMA_DATABASE_URL) {
-  throw new Error("Missing SIGMA_DATABASE_URL");
+declare global {
+  // eslint-disable-next-line no-var
+  var __sigma_sql__: ReturnType<typeof postgres> | undefined;
 }
 
-// Server-side only. Do not import this file in client components.
-export const sql = postgres(SIGMA_DATABASE_URL, {
-  ssl: false,
-  max: 5,
-  idle_timeout: 20,
-  connect_timeout: 10,
-});
+export function getSigmaSql() {
+  const url = process.env.SIGMA_DATABASE_URL;
+
+  // Important: ne pas throw au build time
+  if (!url) return null;
+
+  // cache en dev/hot-reload
+  if (!globalThis.__sigma_sql__) {
+    globalThis.__sigma_sql__ = postgres(url, {
+      ssl: false,
+      max: 5,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+  }
+  return globalThis.__sigma_sql__!;
+}
